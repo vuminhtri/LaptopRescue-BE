@@ -21,6 +21,7 @@ const orderSchema = new mongoose.Schema(
         emailCustomer: String,
         phoneCustomer: String,
         descriptionError: String,
+        pic: String,
         statusOrder: { type: String, default: "Pending" },
     },
     { timestamps: true }
@@ -72,6 +73,26 @@ app.put("/orders/:orderId/update-status", async (req, res) => {
         order.statusOrder = statusOrder;
         await order.save();
         res.status(200).send("Order status updated successfully!");
+    } catch (error) {
+        console.error(error);
+        res.status(500).send(
+            "Internal Server Error. Unable to update order status!"
+        );
+    }
+});
+app.put("/orders/:orderId/update-pic", async (req, res) => {
+    try {
+        const orderId = req.params.orderId;
+        const { picOrder } = req.body;
+        console.log(picOrder)
+        const order = await Order.findById(orderId);
+        if (!order) {
+            return res.status(404).send("Cannot find this order!");
+        }
+        order.pic = picOrder;
+        order.statusOrder = "Assigned"
+        await order.save();
+        res.status(200).send(`Person in Charge ${picOrder} had assigned work!`);
     } catch (error) {
         console.error(error);
         res.status(500).send(
